@@ -17,6 +17,7 @@ namespace CrawlDataFromHowKTeam
 		private HttpClient httpClient;
 		private HttpClientHandler HttpClientHandler;
 		private CookieContainer cookieContainer = new CookieContainer();
+		private string baseUrl = "https://www.howkteam.com/";
 
 		public MainWindow()
 		{
@@ -52,7 +53,7 @@ namespace CrawlDataFromHowKTeam
              * - Accept-Language
              * - User-Argent
              */
-			this.httpClient.BaseAddress = new Uri("https://www.howkteam.com/");
+			this.httpClient.BaseAddress = new Uri(baseUrl);
 		}
 
 		private void AddItemIntoTreeViewItem(ObservableCollection<MenuTreeItem> root, MenuTreeItem node)
@@ -83,8 +84,36 @@ namespace CrawlDataFromHowKTeam
 					URL = CouseUrl
 				};
 				AddItemIntoTreeViewItem(TreeItems, item);
+
+				//thêm mới các node con
+				CrawlListVideo(CouseUrl, item);
 			}
 		}
+
+		private void CrawlListVideo(string url, MenuTreeItem prarentNode)
+		{
+			//lấy ra html course con
+			var htmlCourse = CrawlDataFromUrl(url);
+			//lấy ra link đưa đến trang danh sách các phần bài học
+			var urlPart = Regex.Match(htmlCourse, @"(?<=<div class=""asyncPartial"" data-url="")(.*?)(?="")").Value;
+			//html của danh sách phần học
+			var htmlListCourse = CrawlDataFromUrl(urlPart);
+
+			var listPart = Regex.Matches(htmlListCourse, @"list-group-item([\s\S]*?)</a>");
+			foreach (var part in listPart)
+			{
+				var strPart = part.ToString();
+				string partName = Regex.Match(strPart, @"(?<=</span>)([\s\S]*?)(?=(<))").Value.Trim();
+				string partUrl = Regex.Match(strPart, @"(?<=href="")([\s\S]*?)(?="")").Value;
+				var item = new MenuTreeItem
+				{
+					Name = partName,
+					URL = partUrl
+				};
+				AddItemIntoTreeViewItem(prarentNode.items, item);
+			}
+		}
+
 		#endregion fucntion
 
 		private void Button_Click(object sender, RoutedEventArgs e)
@@ -97,6 +126,10 @@ namespace CrawlDataFromHowKTeam
 			//TreeMain.Items
 		}
 
-		
+		private void btnNode_Click(object sender, RoutedEventArgs e)
+		{
+			var btn = sender as Button;
+			webBrowserMenu.Navigate(baseUrl+ btn.Tag.ToString());
+		}
 	}
 }

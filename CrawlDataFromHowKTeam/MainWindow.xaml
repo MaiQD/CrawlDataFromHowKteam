@@ -26,7 +26,7 @@
 		<TreeView x:Name="TreeMain" Grid.Column="0" Grid.Row="1">
 			<TreeView.ItemTemplate>
 				<HierarchicalDataTemplate ItemsSource="{Binding items}">
-					<TextBlock Text="{Binding Name}"></TextBlock>
+					<Button Content="{Binding Name}" Tag="{Binding URL}" Name="btnNode" Click="btnNode_Click" ></Button>
 				</HierarchicalDataTemplate>
 			</TreeView.ItemTemplate>
 		</TreeView>

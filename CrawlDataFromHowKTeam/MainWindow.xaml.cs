@@ -2,7 +2,9 @@
 using System.Collections.ObjectModel;
 using System.Net;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace CrawlDataFromHowKTeam
 {
@@ -21,34 +23,6 @@ namespace CrawlDataFromHowKTeam
 			InitializeComponent();
 			InitHttpClient();
 			TreeItems = new ObservableCollection<MenuTreeItem>();
-			MenuTreeItem item1 = new MenuTreeItem()
-			{
-				Name = "Item1",
-				URL = "https://www.howkteam.com/Course/Lap-trinh-WPF-co-ban/TreeView-Binding-trong-Lap-trinh-WPF-1354",
-				items = new ObservableCollection<MenuTreeItem>()
-				{
-					new MenuTreeItem() { Name = "sub item1", URL="sadsda"},
-					new MenuTreeItem() { Name = "sub item1", URL="sadsda"},
-					new MenuTreeItem() { Name = "sub item1", URL="sadsda"},
-					new MenuTreeItem() { Name = "sub item1", URL="sadsda"}
-				}
-			};
-			MenuTreeItem item2 = new MenuTreeItem()
-			{
-				Name = "Item2",
-				URL = "https://www.howkteam.com/Course/Lap-trinh-WPF-co-ban/TreeView-Binding-trong-Lap-trinh-WPF-1354",
-				items = new ObservableCollection<MenuTreeItem>()
-				{
-					new MenuTreeItem() { Name = "sub item1", URL="sadsda"},
-					new MenuTreeItem() { Name = "sub item1", URL="sadsda"},
-					new MenuTreeItem() { Name = "sub item1", URL="sadsda"},
-					new MenuTreeItem() { Name = "sub item1", URL="sadsda"}
-				}
-			};
-
-			AddItemIntoTreeViewItem(TreeItems, item1);
-			AddItemIntoTreeViewItem(TreeItems, item2);
-
 			TreeMain.ItemsSource = TreeItems;
 		}
 
@@ -93,6 +67,24 @@ namespace CrawlDataFromHowKTeam
 			return html;
 		}
 
+		private void Crawl(string url)
+		{
+			string html = CrawlDataFromUrl(url);
+			var list_Course = Regex.Matches(html, @"(?<=Học nhanh)([\s\S]*?)(?=(\s)*<div class=""text-warning font-size-sm"">)");
+			foreach (var course in list_Course)
+			{
+				string strCourse = course.ToString();
+				string CourseName = Regex.Match(strCourse, @"(?<=>)(.*?)(?=</h4>)").Value;
+				string CouseUrl = Regex.Match(strCourse, @"(?<=href="")(.*?)(?="">)").Value;
+
+				var item = new MenuTreeItem
+				{
+					Name = CourseName,
+					URL = CouseUrl
+				};
+				AddItemIntoTreeViewItem(TreeItems, item);
+			}
+		}
 		#endregion fucntion
 
 		private void Button_Click(object sender, RoutedEventArgs e)
@@ -101,8 +93,10 @@ namespace CrawlDataFromHowKTeam
 
 		private void Button_Click_1(object sender, RoutedEventArgs e)
 		{
-			webBrowserMenu.Text = CrawlDataFromUrl("Course/Lap-trinh-WPF-co-ban/TreeView-Binding-trong-Lap-trinh-WPF-1354");
+			Crawl("learn");
 			//TreeMain.Items
 		}
+
+		
 	}
 }

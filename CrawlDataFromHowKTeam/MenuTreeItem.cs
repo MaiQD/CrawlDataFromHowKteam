@@ -11,7 +11,6 @@ namespace CrawlDataFromHowKTeam
 	{
 		public string Name { get; set; }
 		public string URL { get; set; }
-		public string Name2 { get; set; }
 		public ObservableCollection<MenuTreeItem> items { get; set; }
 		public MenuTreeItem()
 		{

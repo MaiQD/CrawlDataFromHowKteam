@@ -26,15 +26,12 @@
 		<TreeView x:Name="TreeMain" Grid.Column="0" Grid.Row="1">
 			<TreeView.ItemTemplate>
 				<HierarchicalDataTemplate ItemsSource="{Binding items}">
-					<StackPanel Orientation="Horizontal">
-						<TextBlock Text="{Binding Name}"></TextBlock>
-						<Button Content="{Binding URL}"></Button>
-					</StackPanel>
+					<TextBlock Text="{Binding Name}"></TextBlock>
 				</HierarchicalDataTemplate>
 			</TreeView.ItemTemplate>
 		</TreeView>
 
 
-		<TextBox Grid.Column="1" Grid.Row="1" Name="webBrowserMenu"></TextBox>
-    </Grid>
+		<WebBrowser Grid.Column="1" Grid.Row="1" Name="webBrowserMenu"></WebBrowser>
+	</Grid>
 </Window>

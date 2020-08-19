@@ -2,7 +2,10 @@
 using System.Collections.ObjectModel;
 using System.Net;
 using System.Net.Http;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -58,13 +61,17 @@ namespace CrawlDataFromHowKTeam
 
 		private void AddItemIntoTreeViewItem(ObservableCollection<MenuTreeItem> root, MenuTreeItem node)
 		{
-			root.Add(node);
+			TreeMain.Dispatcher.Invoke(new Action(() =>
+			{
+				root.Add(node);
+			}));
+			
 		}
 
 		private string CrawlDataFromUrl(string url)
 		{
 			var html = string.Empty;
-			html = httpClient.GetStringAsync(url).Result;
+			html = WebUtility.HtmlDecode( httpClient.GetStringAsync(url).Result);
 			return html;
 		}
 
@@ -115,21 +122,56 @@ namespace CrawlDataFromHowKTeam
 		}
 
 		#endregion fucntion
+		#region silent web browser
+		public static void SetSilent(WebBrowser browser, bool silent)
+		{
+			if (browser == null)
+				throw new ArgumentNullException("browser");
 
+			// get an IWebBrowser2 from the document
+			IOleServiceProvider sp = browser.Document as IOleServiceProvider;
+			if (sp != null)
+			{
+				Guid IID_IWebBrowserApp = new Guid("0002DF05-0000-0000-C000-000000000046");
+				Guid IID_IWebBrowser2 = new Guid("D30C1661-CDAF-11d0-8A3E-00C04FC9E26E");
+
+				object webBrowser;
+				sp.QueryService(ref IID_IWebBrowserApp, ref IID_IWebBrowser2, out webBrowser);
+				if (webBrowser != null)
+				{
+					webBrowser.GetType().InvokeMember("Silent", BindingFlags.Instance | BindingFlags.Public | BindingFlags.PutDispProperty, null, webBrowser, new object[] { silent });
+				}
+			}
+		}
+
+		[ComImport, Guid("6D5140C1-7436-11CE-8034-00AA006009FA"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+		private interface IOleServiceProvider
+		{
+			[PreserveSig]
+			int QueryService([In] ref Guid guidService, [In] ref Guid riid, [MarshalAs(UnmanagedType.IDispatch)] out object ppvObject);
+		}
+		#endregion
 		private void Button_Click(object sender, RoutedEventArgs e)
 		{
 		}
 
 		private void Button_Click_1(object sender, RoutedEventArgs e)
 		{
-			Crawl("learn");
-			//TreeMain.Items
+			Task task = new Task(() => { Crawl("learn"); });
+			task.Start();
 		}
 
-		private void btnNode_Click(object sender, RoutedEventArgs e)
+		
+
+		private void webBrowserMenu_Navigated(object sender, System.Windows.Navigation.NavigationEventArgs e)
 		{
-			var btn = sender as Button;
-			webBrowserMenu.Navigate(baseUrl+ btn.Tag.ToString());
+			SetSilent(webBrowserMenu, true);
+		}
+
+		private void btnNode_PreviewMouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+		{
+			var btn = sender as TextBlock;
+			webBrowserMenu.Navigate(baseUrl + btn.Tag.ToString());
 		}
 	}
 }

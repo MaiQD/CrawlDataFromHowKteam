@@ -5,33 +5,32 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CrawlDataFromHowKTeam"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" WindowState="Maximized" Height="450" Width="800">
 	<Grid>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="auto"></RowDefinition>
 			<RowDefinition></RowDefinition>
 		</Grid.RowDefinitions>
 		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="250">
+			<ColumnDefinition Width="250" MinWidth="250">
 			</ColumnDefinition>
-			<ColumnDefinition>
+			<ColumnDefinition Width="3"></ColumnDefinition>
+			<ColumnDefinition MinWidth="200">
 			</ColumnDefinition>
 		</Grid.ColumnDefinitions>
 		<Grid Grid.Column="0" Grid.Row="0">
 			<Button Click="Button_Click_1">Load Data</Button>
 		</Grid>
-		<Grid Grid.Column="1" Grid.Row="0">
-			<Button Click="Button_Click">Add item into tree view</Button>
-		</Grid>
+		<GridSplitter HorizontalAlignment="Stretch" Grid.Column="1" Grid.RowSpan="2"></GridSplitter>
 		<TreeView x:Name="TreeMain" Grid.Column="0" Grid.Row="1">
 			<TreeView.ItemTemplate>
 				<HierarchicalDataTemplate ItemsSource="{Binding items}">
-					<Button Content="{Binding Name}" Tag="{Binding URL}" Name="btnNode" Click="btnNode_Click" ></Button>
+					<TextBlock Margin="5 5 5 5" PreviewMouseDown="btnNode_PreviewMouseDown" Text="{Binding Name}" Tag="{Binding URL}" Name="btnNode" ></TextBlock>
 				</HierarchicalDataTemplate>
 			</TreeView.ItemTemplate>
 		</TreeView>
 
 
-		<WebBrowser Grid.Column="1" Grid.Row="1" Name="webBrowserMenu"></WebBrowser>
+		<WebBrowser Navigated="webBrowserMenu_Navigated" Grid.Column="2" Grid.Row="1" Name="webBrowserMenu"></WebBrowser>
 	</Grid>
 </Window>
